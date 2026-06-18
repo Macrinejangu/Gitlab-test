@@ -54,3 +54,11 @@ When you use it, divide two numbers, the output you get is the remainder when th
 */
 let number7 = number6%27
 console.log(`number7 is ${number7} its type is ${number7}`)
+
+//it's like asking, is a number x a multimplr of a number n
+
+let number8=23
+let number9=12
+let modNu=number8%number9
+console.log(`modNu is ${modNu} its type is ${typeof modNu}`)
+
