@@ -39,7 +39,7 @@ let number4 = number1*number2
 console.log(`number4 is ${number4} its type is ${typeof number4}`)
 //Raising to power 'n'
 let number5=number1**2 // this is 23 raised to power 2
-console/log(`number5 is ${number5} its type is ${typeof number5}`)
+console.log(`number5 is ${number5} its type is ${typeof number5}`)
 let number6=Math.pow(10,3)//10^3
 console.log(`number6 is ${number6} its type is ${typeof number6}`)
 
@@ -47,3 +47,10 @@ console.log(`number6 is ${number6} its type is ${typeof number6}`)
 // tan - finds the tangent of an angle (also needs radians)
 // log - finds the natural logarithm of a number (log base e, not base 10)
 // pow - raises a number to a power, like base^exponent (e.g. Math.pow(2,3) = 8)
+
+/*
+Modulus is a bit special
+When you use it, divide two numbers, the output you get is the remainder when the number is divided
+*/
+let number7 = number6%27
+console.log(`number7 is ${number7} its type is ${number7}`)
