@@ -12,9 +12,8 @@ let userDetails=firstName + " " + secondName + " is " + age + " years old," + "s
 console.log(userDetails)
 console.log("User Details is", typeof userDetails)
 
-/*
-The best way to create a template string using backticks
-*/
+// The best way to create a template string using backticks
+
  let userDetails2 = `${firstName} ${secondName} is ${age} years old and she stays at ${address}`
  //You can console log two ways; either through the value in the data type
 console.log(userDetails2)
