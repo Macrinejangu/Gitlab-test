@@ -23,3 +23,28 @@ console.log(`val1=${val1}===val2=${val2}
 let Inequality=val1!=val2    
 console.log(`val1=${val1}===val2=${val2}
     Ans ${Inequality} its type is ${typeof Inequality}`)    
+    /* 
+    
+
+    */
+
+let numb1=20
+let numb2=10
+
+let string1="a"
+let string2="b"
+
+console.log(`numb1=${numb1} and numb2=${numb2}`)
+console.log(`string1=${string1} and string2=${string2}`)
+
+console.log(`numb1>numb2 ${numb1>numb2}`)
+console.log(`string2>string1 ${string2>string1}`)
+
+console.log(`numb1>=numb2 ${numb1>=numb2}`)
+console.log(`strinf2>=string1 ${string2>=string1}`)
+
+console.log(`number1<number2 ${number1<number2}`)
+console.log(`string2<string1 ${string2<string1}`)
+
+console.log(`number1<=number2 ${number1<=number2}`)
+console.log(`string2<=string1 ${string2<=string1}`)
