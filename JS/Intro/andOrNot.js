@@ -30,3 +30,12 @@ console.log(`Mercys age is greater than 18 and has more than 20k in her account 
 let simplified=mercyAge>18&&mercyBalance>20000
 console.log(`simplified ${simplified}`)
 console.log(`further simplification is ${mercyAge>18&&mercyBalance>20000}`)
+
+/*
+Or Operator
+In this, atleast one statement needs to ne true for the whole statement to be true 
+*/
+
+console.log (`mercys age is greater than 18 or she had more than 20k in her ccount ${isGreaterThan18 ||hasMoreThan20k}`)
+console.log(`This is not true = ${!true}`)
+console.log(`This is not false = ${false}`)
