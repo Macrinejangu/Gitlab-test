@@ -8,6 +8,8 @@ For this, we need a truth table
 The idea is that it looks at all possible combinations
 Eg. Val1 and Val2, so for this, all the combinations are:
 Val1 && Val2 and then Val2 && Val1
+
+&&(and) and ||(or) work with truthy and falsy
 */
  
 let val1=true
