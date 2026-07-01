@@ -37,3 +37,22 @@ let area3 = function(length1, width1){
     return length1 *width1
 };
 console.log(area3(5,6));
+
+/* 
+Arrow Function
+Simply function creation. Some properties(classes)
+1. Create an anonymous function
+2. Remove the function keyword
+3. Between () <> {} put an arrow =>
+    Good practice to have the variable as a const
+*/
+let rA2 = (l,w) => {
+    return 1 * w
+} //function
+
+/*
+In a nutshell:
+Named function
+Anonymous function < syntatical sugar><semi understand>
+Arrow syntatical sugar 
+*/
