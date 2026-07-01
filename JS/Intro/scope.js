@@ -119,43 +119,6 @@ for (let i = 0; i < 3; i++) {
 
 // console.log(i); // ReferenceError: i is not defined
 
-
-// 4. LEXICAL SCOPE (SCOPE INHERITANCE)
-
-/**
- * Inner functions can access variables from their outer (parent) scope.
- * JS determines scope at the time you WRITE the code, not when you run it.
- * This is called "lexical" (meaning "based on where it is in the source").
- *
- * The rule: inner can see outer, but outer CANNOT see inner.
- */
-
-// Example 1 — inner function reads from outer and global scope
-const name = "Macrine";
-
-function outer() {
-  const greeting = "Hello";
-
-  function inner() {
-    // inner sees `greeting` from outer() and `name` from global scope
-    console.log(`${greeting}, ${name}!`);
-  }
-
-  inner();
-}
-
-outer(); // "Hello, Macrine!"
-
-
-// Example 2 — outer cannot see into inner
-function parent() {
-  function child() {
-    const secret = "hidden";
-  }
-
-  // console.log(secret); // ReferenceError: secret is not defined
-}
-
 /**
  * SCOPE PRACTICE EXERCISE
  *
