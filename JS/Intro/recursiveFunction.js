@@ -29,3 +29,9 @@ console.log(factorial(4));
 console.log(factorial(3));
 console.log(factorial(2));
 console.log(factorial(1));
+/*
+A callstack is a place where when you call a function, 
+it gets added to the top of the stack. 
+When the function finishes, it gets removed from the top of the stack. 
+This process continues until the stack is empty.
+*/
