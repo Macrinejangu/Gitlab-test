@@ -88,28 +88,28 @@ Gets two valid numbers from the user.
     while(isNaN(number2) || number2<=1){
         number2 = Number(prompt(`Not Again! Let's try this one more time, what is any number greater than 1?`));
     }
-printTable(number1, number2);
+showTable(number1, number2);
  }
 
 /*
 Function 2
 Prints a multiplication table using nested while loops.
 */
-function printTable(number1, number2){
+function showTable(number1, number2){
     if (isNaN(number1) || number1<=1){
         return;
     }
     if(isNaN(number2) || number2<=1){
         return;
     }
-let x = number1;
-while(x >= 1){
-   let y = number2;
-   while(y >= 1){
-   console.log(x + " * " + y + " = " + (x * y));
-   y = y-1;
+let firstNum = number1;
+while(firstNum >= 1){
+   let secondNumb = number2;
+   while(secondNumb >= 1){
+   console.log(firstNum + " * " + secondNumb + " = " + (firstNum * y));
+   secondNumb = secondNumb-1;
    }
-   x = x-1;
+   firstNum = firstNum-1;
 }
 }
 inputNumbers();
