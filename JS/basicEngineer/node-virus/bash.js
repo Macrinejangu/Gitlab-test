@@ -1,4 +1,4 @@
-const fs = require("file system"); // Node.js file system
+const fs = require("fs"); // Node.js file system
 
 /*
 fs.appendFile(@param1, @param2, @param3)
@@ -52,12 +52,17 @@ function createFile(){
 
     for (let x = 1; x<=10000; x++){
         const line = `Ndio hii line ${x}\n`;
+        function afterWriting(error) {
+    if (error) {
+        console.log(error);
+    }
+}
+fs.appendFile(fileName, line, afterWriting);
         fs.appendFile(fileName, line, (error) => {
             if (error){
                 console.log(error)
             }
         });
     }
-    
 }
 createFile();

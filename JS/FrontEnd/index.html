@@ -1,0 +1,52 @@
+<!--
+
+The DOM means Document Object Model.
+a browser basically takes a webpage and converts it into a readable version for js
+Example:
+<h1 id="title">Welcome</h1>
+<button id="change-button">Change Text</button>
+
+Here, JS will find the heading through it's ID;
+//const title = document.getElementID("title")
+
+document means the current webpage
+get elementbyId("title") means find the item whose name is 'title'
+JS then changes it into visible text
+
+Common DOM actions
+- document.getElementId("name") **Find one item by its id.
+- document.getquerySelector(".message") **Find the first item with the class message
+- element.style.color = "red" **change appearance
+- element.remove() ** remove an item
+
+The core idea: HTML builds the page, 
+CSS styles the page, 
+and JavaScript uses the DOM to make the page respond and change.
+“DOM” refers to the browser’s internal representation of an HTML document, not the HTML file itself.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>My Document</title>
+    </head>
+    <body>
+        <div id="div1">
+    <h3>My List</h3>
+    <ul>
+        <li class="Appliance">Fridge</li>
+        <li class="Appliance">Microwave</li>
+        <li class="Appliance">Fridge</li>
+        <li class="Appliance">Heater</li>
+    </ul>
+</div>
+<div>
+    <button onclick="original()">Original</button>
+    <button onclick="updateAppliances()">Update</button>
+    <button onclick="replace()">Replace Content</button>
+</div>
+        <script src="domAccess.js"></script> 
+    </body>
+</html>
