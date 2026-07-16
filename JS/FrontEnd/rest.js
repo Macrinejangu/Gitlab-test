@@ -154,4 +154,7 @@ Practice:
 - cURL
 
 This helps understand how websites communicate with servers.
+
+$$ HTTP RESPONSES (AWAIT FOR RESPONSE)
+
 */
