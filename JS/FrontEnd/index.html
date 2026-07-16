@@ -33,6 +33,10 @@ and JavaScript uses the DOM to make the page respond and change.
         <title>My Document</title>
     </head>
     <body>
+        <div id="">
+            <span>x direction <b id="x-b"></b></span>
+            <span>y direction <b id="y-b"></b></span>
+        </div>
         <div id="div1">
     <h3>My List</h3>
     <ul>
@@ -47,6 +51,19 @@ and JavaScript uses the DOM to make the page respond and change.
     <button onclick="updateAppliances()">Update</button>
     <button onclick="replace()">Replace Content</button>
 </div>
+<div>
+    <button id="btn-event-checker">Event Checker</button>
+</div>
+
+<form id="form1">
+    <p><label>Name</label><input id ="form1input1"/></p>
+    <p><label>Name</label><input id ="form1input2"/></p>
+    <p>
+        <button>Submit</button>
+    </p>
+</form>
         <script src="domAccess.js"></script> 
+        <script src="./domEvent.js"></script>
+        <script src="./forms.js"></script>
     </body>
 </html>
