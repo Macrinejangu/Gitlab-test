@@ -74,17 +74,14 @@ def area_rectangle(length, width):
 
 
 # OPTION 1: POSITIONAL ARGUMENTS
-
 # The values are matched to the parameters
 # according to their POSITION.
-#
 # 5 goes into length
 # 2 goes into width
 
 area_rectangle(5, 2)
 
 # This is equivalent to:
-#
 # length = 5
 # width = 2
 
@@ -102,16 +99,13 @@ length = 39
 area_rectangle(width, length)
 
 # Therefore:
-#
 # length = 4
 # width = 39
-#
 # The names of the variables do not matter here.
 # Their POSITION matters.
 
 
 # OPTION 3: KEYWORD ARGUMENTS
-
 # Here we explicitly tell Python which value
 # belongs to which parameter.
 
@@ -134,20 +128,12 @@ area_rectangle(width=10, length=55)
 
 
 # IMPORTANT:
-#
 # The keyword names must match the parameter names.
-#
 # Our function has:
-#
 # def area_rectangle(length, width):
-#
 # Therefore these work:
-#
 # area_rectangle(length=55, width=10)
 # area_rectangle(width=10, length=55)
-#
 # But this would NOT work:
-#
 # area_rectangle(height=10, length=55)
-#
 # because the function has no parameter called "height".
