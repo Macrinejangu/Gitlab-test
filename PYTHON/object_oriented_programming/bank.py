@@ -1,75 +1,165 @@
+"""
+Abstractions.
+
+Bank Class →
+deposits, withdrawal,
+show account.
+getter and setter. →
+→ easy to scale function <understing>
+
+→ Login account
+→ Create account
+──→ Deposit
+──→ Withdrawal
+──→ account balance
+"""
+
+
+"""
+Static <it does not change>.<class properties> properties. <Belong to the class>
+Static Method.<Class method.<function belongs to the class>
+
+Why would you want to use a class property.◇
+"""
+
+
 class BankAccount:
 
-    # The constructor runs automatically when a new bank account is created.
+    # Static or class properties.
+    # These belong to the class.
+    clients = 0
+    bank_name = "Post Bank"  # static property
+
+
+    # Constructor.
     def __init__(self, name, balance, account_no):
-        # Store the account owner's name.
+
+        # Store the values passed when creating the account.
         self.name = name
-
-        # Store the actual balance internally.
-        # The underscore means this value should be managed by the class.
         self._balance = balance
-
-        # Store the account number.
         self.account_no = account_no
 
+        # Different ways we could increase the number of clients.
 
-    # This property controls how the balance is read.
-    # We can access it using john.balance without parentheses.
+        # BankAccount.clients = BankAccount.clients + 1
+
+        # self.__class__.clients = self.__class__.clients + 1
+
+        # self.__class__.add_client()
+
+        # Call the class method to increase the number of clients.
+        BankAccount.add_client()
+
+        # self.__class__.bank_name = new_bank
+
+        # self.__class__.clients += 1
+
+        # BankAccount.clients += 1
+
+
+    # Data is read.
     @property
     def balance(self):
-        print("Somebody tried to read John's balance")
+        print("Somebody tried to read Johns balance")
         return self._balance
 
 
-    # This setter controls how the balance is changed.
-    # It runs when we write something like:
-    # john.balance = 5000
+    # To control updated values.
     @balance.setter
     def balance(self, value):
 
-        # Check whether the new balance is a number.
+        # Ensure the new balance is a number.
         if not isinstance(value, (int, float)):
-            print("Ensure you pass a number for the new balance")
+            print("Ensure you pass a number for new balance")
             return
 
-        # Prevent the balance from being set to a negative number.
+        # Ensure the new balance is not less than zero.
         if value < 0:
-            print("Ensure the new balance is not less than 0")
+            print("Ensure new balance must not be less than 0")
             return
 
-        # Update the internal balance after validation.
+        # Update the balance.
         self._balance = value
 
 
-    # This method will later handle depositing money.
+    # Instance method.
+    # self → object.
     def deposit(self):
         pass
 
 
-    # This method will later handle withdrawing money.
     def withdrawal(self):
         pass
 
 
-    # Display the details stored in this bank account.
     def show_account_details(self):
-        print(f"Owner: {self.name}")
-        print(f"Balance: {self.balance}")
-        print(f"Account No: {self.account_no}")
+        print(f"Owner {self.name}")
+        print(f"Balance {self.balance}")
+        print(f"Account No {self.account_no}")
 
 
-# Create a new BankAccount object.
+    # ------------------------------------------------
+
+    # Static Method.
+    # Static methods do not receive self or cls.
+    @staticmethod
+    def calculate_interest(amount, year):
+
+        # Interest rate.
+        rate = 10
+
+        # Calculate interest earned per year.
+        interest_per_year = amount * (rate / 100)
+
+        # Calculate total interest for the given number of years.
+        interest_total = interest_per_year * year
+
+        # Calculate the total amount to pay.
+        total = amount + interest_total
+
+        print(
+            f"You take a loan of {amount}, "
+            f"interest rate per year {interest_per_year}"
+        )
+
+        print(
+            f"Total interest {interest_total}, "
+            f"total to pay {total} after {year}"
+        )
+
+
+    # ------------------------------------------------
+
+    # Class Method.
+    # Class methods receive cls instead of self.
+    @classmethod
+    def add_client(cls):
+
+        # Increase the total number of clients.
+        cls.clients = cls.clients + 1
+
+
+# ------------------------------------------------
+
+
+# Create an object or instance from the class.
 john = BankAccount(
     name="John Mwangi",
-    balance=-2,
-    account_no="22344223"
+    balance=0,
+    account_no="223344223"
 )
 
 
-# Access the balance.
-# Because balance has @property, this calls the balance method.
-print("John's balance:", john.balance)
+samuel = BankAccount(
+    name="Samuel",
+    balance=0,
+    account_no="223344223"
+)
 
 
-# Display all account details.
-john.show_account_details()
+# Print the total number of clients created.
+print("Total clients", BankAccount.clients)
+
+
+# Call the static method using the class name.
+BankAccount.calculate_interest(5000, 3)
