@@ -1,4 +1,4 @@
 {
 "python.defaultInterpreterPath": "${workspaceFolder}/introFlask/.venv/bin/python",
-"python-envs.defaultEnvManager": "ms-python.python:venv"
+"python-envs.defaultEnvManager": "ms-python.python:system"
 }
