@@ -1,0 +1,94 @@
+generator client {
+  provider                    = "prisma-client-py"
+  enable_experimental_decimal = "true"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model order {
+  id           Int          @id @default(autoincrement())
+  user_id      Int
+  status_id    Int
+  total_amount Decimal      @db.Decimal(12, 2)
+  created_at   DateTime     @default(now()) @db.Timestamptz(6)
+  order_status order_status @relation(fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "order_status_fk")
+  user         user         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "order_user_fk")
+  order_item   order_item[]
+
+  @@index([status_id], map: "order_status_idx")
+  @@index([user_id], map: "order_user_idx")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model order_item {
+  id         Int     @id @default(autoincrement())
+  order_id   Int
+  product_id Int
+  quantity   Int
+  price      Decimal @db.Decimal(8, 2)
+  order      order   @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "order_item_order_fk")
+  product    product @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "order_item_product_fk")
+
+  @@index([order_id], map: "order_item_order_idx")
+  @@index([product_id], map: "order_item_product_idx")
+}
+
+model order_status {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(30)
+  description String?
+  icon_name   String?  @db.VarChar(100)
+  badge_color String?  @db.VarChar(30)
+  text_color  String?  @db.VarChar(30)
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime @default(now()) @db.Timestamptz(6)
+  order       order[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model product {
+  id             Int             @id @default(autoincrement())
+  name           String          @db.VarChar(200)
+  description    String?
+  price          Decimal         @db.Decimal(8, 2)
+  stock_quantity Int             @default(0)
+  created_at     DateTime        @default(now()) @db.Timestamptz(6)
+  order_item     order_item[]
+  product_image  product_image[]
+}
+
+model product_image {
+  id         Int      @id @default(autoincrement())
+  product_id Int
+  image_url  String
+  is_default Boolean  @default(false)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+  product    product  @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "product_image_product_fk")
+
+  @@index([product_id], map: "product_image_product_idx")
+}
+
+model user {
+  id            Int            @id @default(autoincrement())
+  name          String         @db.VarChar(100)
+  email         String         @unique @db.VarChar(250)
+  created_at    DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime       @default(now()) @db.Timestamptz(6)
+  order         order[]
+  user_password user_password?
+}
+
+model user_password {
+  id            Int      @id @default(autoincrement())
+  user_id       Int      @unique
+  password_hash String
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime @default(now()) @db.Timestamptz(6)
+  user          user     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_password_user_fk")
+}
