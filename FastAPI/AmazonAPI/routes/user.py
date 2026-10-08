@@ -4,7 +4,7 @@ import bcrypt
 
 router = APIRouter()
 
-from app import prisma
+from db import prisma
 
 
 class UserSchema(BaseModel):
