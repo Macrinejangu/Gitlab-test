@@ -5,13 +5,14 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 
 from db import prisma
+from cloud import delete_from_cloud
+from routes.product_image import get_public_id
 
 
 router = APIRouter()
 
 
-# 1. SCHEMA FOR CREATING PRODUCTS
-
+# Schema for creating products
 class ProductSchema(BaseModel):
     name: str
     description: Optional[str] = None
@@ -19,16 +20,15 @@ class ProductSchema(BaseModel):
     stock_quantity: int = Field(default=0, ge=0)
 
 
-# 2. SCHEMA FOR UPDATING PRODUCTS
-
+# Schema for updating products
 class UpdateProductSchema(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[Decimal] = Field(default=None, gt=0)
     stock_quantity: Optional[int] = Field(default=None, ge=0)
 
-# 3. POST - CREATE PRODUCT
 
+# CREATE PRODUCT
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def add_product(payload: ProductSchema):
 
@@ -46,15 +46,14 @@ async def add_product(payload: ProductSchema):
         "product": new_product
     }
 
-# 4. PUT - UPDATE PRODUCT
 
-@router.put("/{product_id}", status_code=status.HTTP_200_OK)
+# UPDATE PRODUCT
+@router.put("/{product_id}")
 async def update_product(
     product_id: int,
     payload: UpdateProductSchema
 ):
 
-    # Check whether the product exists
     existing = await prisma.product.find_unique(
         where={"id": product_id}
     )
@@ -65,10 +64,9 @@ async def update_product(
             detail="Product not found"
         )
 
-    # Include only fields provided in the request
+    # Update only fields supplied in the request
     update_data = payload.model_dump(exclude_unset=True)
 
-    # Prevent null values for required database fields
     required_fields = {"name", "price", "stock_quantity"}
 
     if any(
@@ -77,17 +75,15 @@ async def update_product(
     ):
         raise HTTPException(
             status_code=422,
-            detail="Name, price and stock quantity cannot be null"
+            detail="Required product fields cannot be null"
         )
 
-    # Reject empty updates
     if not update_data:
         raise HTTPException(
             status_code=400,
             detail="No fields provided for update"
         )
 
-    # Update only the supplied fields
     updated_product = await prisma.product.update(
         where={"id": product_id},
         data=update_data
@@ -98,18 +94,8 @@ async def update_product(
         "product": updated_product
     }
 
-# 5. GET - RETRIEVE ALL PRODUCTS
 
-@router.get("/")
-async def get_all():
-
-    products = await prisma.product.find_many()
-
-    return products
-
-
-# 6. GET - RETRIEVE ONE PRODUCT
-
+# GET ONE PRODUCT
 @router.get("/{product_id}")
 async def get_by_id(product_id: int):
 
@@ -125,13 +111,24 @@ async def get_by_id(product_id: int):
 
     return product
 
-# 7. DELETE - REMOVE PRODUCT
 
+# GET ALL PRODUCTS
+@router.get("/")
+async def get_all():
+
+    products = await prisma.product.find_many()
+
+    return products
+
+
+# DELETE PRODUCT AND ASSOCIATED IMAGES
 @router.delete("/{product_id}")
 async def delete_product(product_id: int):
 
+    # Find the product and its images
     product = await prisma.product.find_unique(
-        where={"id": product_id}
+        where={"id": product_id},
+        include={"product_image": True}
     )
 
     if not product:
@@ -140,10 +137,36 @@ async def delete_product(product_id: int):
             detail="Product not found"
         )
 
-    await prisma.product.delete(
-        where={"id": product_id}
-    )
+    # Delete each image from Cloudinary
+    for image in product.product_image:
+
+        try:
+            public_id = get_public_id(image.image)
+        except ValueError:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid Cloudinary URL for image {image.id}"
+            )
+
+        deleted = delete_from_cloud(public_id)
+
+        if not deleted:
+            raise HTTPException(
+                status_code=502,
+                detail=f"Failed to delete Cloudinary image {image.id}"
+            )
+
+    # Delete image records before deleting the product
+    async with prisma.tx() as tx:
+
+        await tx.product_image.delete_many(
+            where={"product_id": product_id}
+        )
+
+        await tx.product.delete(
+            where={"id": product_id}
+        )
 
     return {
-        "message": "Product deleted successfully"
+        "message": "Product and associated images deleted successfully"
     }
