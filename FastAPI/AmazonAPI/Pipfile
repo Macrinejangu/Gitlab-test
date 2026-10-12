@@ -9,6 +9,7 @@ uvicorn = {extras = ["standard"], version = "*"}
 prisma = "*"
 pydantic = "*"
 bcrypt = "*"
+pyjwt = "*"
 
 [dev-packages]
 

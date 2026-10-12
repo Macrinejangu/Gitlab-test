@@ -1,28 +1,32 @@
-from fastapi import APIRouter, status, Request, HTTPException
+from fastapi import APIRouter, status, HTTPException
 from pydantic import BaseModel, EmailStr
 import bcrypt
 
+from db import prisma
+from auth import create_access_token
+
+
 router = APIRouter()
 
-from db import prisma
 
-
+# Data required when registering a user
 class UserSchema(BaseModel):
     name: str
     email: EmailStr
     password: str
 
 
+# Data required when logging in
 class LoginSchema(BaseModel):
     email: EmailStr
     password: str
 
 
+# REGISTER USER
 @router.post("/sign-up", status_code=status.HTTP_201_CREATED)
 async def sign_up(payload: UserSchema):
-    # Data validation
-    print(payload)
 
+    # Check whether the email is already registered
     existing = await prisma.user.find_unique(
         where={"email": payload.email}
     )
@@ -33,7 +37,23 @@ async def sign_up(payload: UserSchema):
             detail="Email already in use"
         )
 
+    # Hash the password before saving it
+    password_bytes = payload.password.encode("utf-8")
+
+    if len(password_bytes) > 72:
+        raise HTTPException(
+            status_code=422,
+            detail="Password is too long"
+        )
+
+    salt = bcrypt.gensalt()
+    password_hash = bcrypt.hashpw(
+        password_bytes, salt
+    ).decode("utf-8")
+
+    # Save the user and password together
     async with prisma.tx() as tx:
+
         user = await tx.user.create(
             data={
                 "name": payload.name,
@@ -41,56 +61,62 @@ async def sign_up(payload: UserSchema):
             }
         )
 
-        # Hash password
-        user_pass = payload.password
-        bytes = user_pass.encode("utf-8")
-        salt = bcrypt.gensalt()
-        hash = bcrypt.hashpw(bytes, salt).decode("utf-8")
-
         await tx.user_password.create(
             data={
                 "user_id": user.id,
-                "password_hash": hash
+                "password_hash": password_hash
             }
         )
 
-    return user
+    return {
+        "message": "User registered successfully",
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email
+        }
+    }
 
 
-@router.post("/login", status_code=status.HTTP_201_CREATED)
+# LOGIN USER
+@router.post("/login", status_code=status.HTTP_200_OK)
 async def login(payload: LoginSchema):
 
-    # Fetch user using email, including password relationship
+    # Find the user and their stored password hash
     user = await prisma.user.find_unique(
         where={"email": payload.email},
-        include={
-            "user_password": True
-        }
+        include={"user_password": True}
     )
 
-    print("USER IS")
-    print(user)
-
-    if not user:
+    # Return the same error for unknown emails and wrong passwords
+    if not user or not user.user_password:
         raise HTTPException(
-            status_code=400,
-            detail="Invalid email and or password"
-        )
-
-    # Get stored hashed password
-    hashed_password = user.user_password.password_hash.encode("utf-8")
-
-    # Convert password entered by user to bytes
-    user_password = payload.password.encode("utf-8")
-
-    # Compare entered password with stored hash
-    if not bcrypt.checkpw(user_password, hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=401,
             detail="Invalid email or password"
         )
 
+    # Compare the submitted password with the stored hash
+    hashed_password = user.user_password.password_hash.encode("utf-8")
+    entered_password = payload.password.encode("utf-8")
+
+    if not bcrypt.checkpw(entered_password, hashed_password):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password"
+        )
+
+    # Generate a JWT containing the user's ID
+    token = create_access_token(
+        {"sub": str(user.id)}
+    )
+
     return {
         "message": "Login successful",
-        "user": user
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email
+        },
+        "access_token": token,
+        "token_type": "bearer"
     }
