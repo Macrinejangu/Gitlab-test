@@ -8,6 +8,9 @@ from db import prisma
 from cloud import delete_from_cloud
 from routes.product_image import get_public_id
 
+from fastapi import Depends
+from auth import get_current_user
+
 
 router = APIRouter()
 
@@ -113,10 +116,15 @@ async def get_by_id(product_id: int):
 
 
 # GET ALL PRODUCTS
+# GET ALL PRODUCTS — authentication required
 @router.get("/")
-async def get_all():
+async def get_all(
+    current_user = Depends(get_current_user)
+):
 
-    products = await prisma.product.find_many()
+    products = await prisma.product.find_many(
+        include={"product_image": True}
+    )
 
     return products
 
