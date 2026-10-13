@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
+from urllib.parse import urlparse, unquote
 import shutil
 
 from fastapi import (
@@ -14,7 +15,6 @@ from fastapi import (
 
 from db import prisma
 from cloud import upload_to_cloud, delete_from_cloud
-from urllib.parse import urlparse, unquote
 
 
 router = APIRouter()
@@ -90,6 +90,17 @@ async def upload_file(
                 detail="Product not found"
             )
 
+        # Check that the uploaded file is an image
+        if document.content_type not in (
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="Only JPEG, PNG and WebP images are allowed"
+            )
+
         # Save the file locally
         file_path, unique_filename = save_upload(document)
 
@@ -103,13 +114,22 @@ async def upload_file(
             )
 
         image_link = cloud_result["image_url"]
-        uploaded_public_id = cloud_result["public_id"]
+        uploaded_public_id = cloud_result.get("public_id")
+
+        # Check whether the product already has images
+        existing_image = await prisma.product_image.find_first(
+            where={"product_id": product.id}
+        )
+
+        # Make the first image the default
+        is_default = existing_image is None
 
         # Save the image information in PostgreSQL
         new_product_image = await prisma.product_image.create(
             data={
                 "product_id": product.id,
-                "image": image_link
+                "image_url": image_link,
+                "is_default": is_default
             }
         )
 
@@ -124,7 +144,7 @@ async def upload_file(
         }
 
     finally:
-        # Remove cloud image if the database save failed
+        # Remove the Cloudinary image if the database save failed
         if uploaded_public_id and not saved_to_database:
             delete_from_cloud(uploaded_public_id)
 
@@ -158,7 +178,18 @@ async def update_product_image(
                 detail="Product image not found"
             )
 
-        old_image_url = existing_image.image
+        # Check that the replacement file is an image
+        if document.content_type not in (
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="Only JPEG, PNG and WebP images are allowed"
+            )
+
+        old_image_url = existing_image.image_url
 
         # Save the replacement file locally
         file_path, unique_filename = save_upload(document)
@@ -173,12 +204,12 @@ async def update_product_image(
             )
 
         new_image_url = cloud_result["image_url"]
-        new_public_id = cloud_result["public_id"]
+        new_public_id = cloud_result.get("public_id")
 
         # Update the image URL in PostgreSQL
         updated_image = await prisma.product_image.update(
             where={"id": image_id},
-            data={"image": new_image_url}
+            data={"image_url": new_image_url}
         )
 
         database_updated = True
@@ -198,7 +229,7 @@ async def update_product_image(
         }
 
     finally:
-        # Remove the new cloud image if the database update failed
+        # Remove the new Cloudinary image if the database update failed
         if new_public_id and not database_updated:
             delete_from_cloud(new_public_id)
 

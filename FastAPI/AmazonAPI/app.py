@@ -1,38 +1,47 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Depends
 import uvicorn
+
+from db import prisma
+from auth import get_current_user
+from seed import seed_status
 
 from routes.user import router as user_router
 from routes.product import router as product_router
 from routes.product_image import router as product_image_router
+from routes.order_item import router as order_item_router
+from routes.orders import router as orders_router
 
-from db import prisma
-from auth import get_current_user
 
-
-# Connect to Prisma when the app starts
+# Connect to Prisma and seed order statuses
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+
     await prisma.connect()
-    yield
-    await prisma.disconnect()
+
+    try:
+        await seed_status()
+        yield
+
+    finally:
+        await prisma.disconnect()
 
 
-# Create the FastAPI application
 app = FastAPI(
     title="Amazon API",
     lifespan=lifespan
 )
 
 
-# Public routes: registration and login
+# Public authentication routes
 app.include_router(
     user_router,
     prefix="/user"
 )
 
 
-# Protected routes: all product operations require authentication
+# Protected product routes
 app.include_router(
     product_router,
     prefix="/product",
@@ -40,7 +49,7 @@ app.include_router(
 )
 
 
-# Protected routes: all image operations require authentication
+# Protected product image routes
 app.include_router(
     product_image_router,
     prefix="/product_image",
@@ -48,17 +57,32 @@ app.include_router(
 )
 
 
+# Protected shopping-cart routes
+app.include_router(
+    order_item_router,
+    prefix="/order_item",
+    dependencies=[Depends(get_current_user)]
+)
+
+
+# Protected order history and active-cart routes
+app.include_router(
+    orders_router,
+    prefix="/orders",
+    dependencies=[Depends(get_current_user)]
+)
+
+
 # Check whether the API is running
 @app.get("/")
 async def root():
-    users = await prisma.user.find_many()
-    print(users)
 
     return {"message": "API is running"}
 
 
 # Start the development server
 if __name__ == "__main__":
+
     uvicorn.run(
         "app:app",
         host="127.0.0.1",

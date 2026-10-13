@@ -1,14 +1,16 @@
 import os
+
 import cloudinary
 import cloudinary.uploader
 
-from cloudinary.utils import cloudinary_url
 from dotenv import load_dotenv
 
 
-# Load Cloudinary credentials
+# Load environment variables
 load_dotenv()
 
+
+# Configure Cloudinary
 cloudinary.config(
     cloud_name=os.getenv("CLOUD_NAME"),
     api_key=os.getenv("CLOUD_API_KEY"),
@@ -17,15 +19,21 @@ cloudinary.config(
 )
 
 
-# Upload an image to Cloudinary
+# UPLOAD IMAGE TO CLOUDINARY
 def upload_to_cloud(file_path):
 
     try:
-        res = cloudinary.uploader.upload(file_path)
+        # Upload the image
+        result = cloudinary.uploader.upload(
+            file_path,
+            resource_type="image",
+            folder="amazonapi/products"
+        )
 
+        # Return the image URL and Cloudinary public ID
         return {
-            "image_url": res.get("secure_url"),
-            "public_id": res.get("public_id")
+            "image_url": result.get("secure_url"),
+            "public_id": result.get("public_id")
         }
 
     except Exception as e:
@@ -33,7 +41,7 @@ def upload_to_cloud(file_path):
         return None
 
 
-# Delete an image from Cloudinary
+# DELETE IMAGE FROM CLOUDINARY
 def delete_from_cloud(public_id):
 
     try:
