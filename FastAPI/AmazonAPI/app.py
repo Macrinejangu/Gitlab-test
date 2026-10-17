@@ -12,6 +12,7 @@ from routes.product import router as product_router
 from routes.product_image import router as product_image_router
 from routes.order_item import router as order_item_router
 from routes.orders import router as orders_router
+from fastapi.middleware.cors import CORSMiddleware
 
 
 # Connect to Prisma and seed order statuses
@@ -28,11 +29,23 @@ async def lifespan(app: FastAPI):
         await prisma.disconnect()
 
 
-app = FastAPI(
-    title="Amazon API",
-    lifespan=lifespan
-)
+# Initialize FastAPI
+app = FastAPI(lifespan=lifespan)
 
+
+# Allow the React frontend to communicate with FastAPI
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Public authentication routes
 app.include_router(
